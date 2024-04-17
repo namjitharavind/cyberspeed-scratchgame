@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
 
 public class App {
     public static void main(String[] args) throws IOException {
@@ -51,6 +53,10 @@ public class App {
          * TODO: Check the winning combinations applied for the above matrix generated
          */
 
+        Map<String, Set<String>> appliedWinningCombinations = scratchGameService.checkWinningCombinations(generatedMatrix);
+        printMap(appliedWinningCombinations);
+
+
         /**
          * TODO: calculated the reward
          */
@@ -61,5 +67,12 @@ public class App {
         Arrays.stream(matrix)
                 .map(row -> String.join(" ", row))
                 .forEach(System.out::println);
+    }
+    public static void printMap(Map<String, Set<String>> map) {
+        map.forEach((key, values) -> {
+            System.out.print(key + ": ");
+            values.forEach(value -> System.out.print(value + " "));
+            System.out.println();
+        });
     }
 }

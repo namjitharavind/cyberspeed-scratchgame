@@ -12,6 +12,7 @@ import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -150,4 +151,73 @@ class ScratchGameServiceTest {
         }
     }
 
+    @Test
+    @DisplayName("Test both same_symbol combination and vertically")
+    void checkWinningCombinations_CASE1() throws IOException {
+
+        Matrix config = getMatrix("MatrixConfigTest.json");
+        ScratchGameService gameService = new ScratchGameService(config);
+        String[][] generatedMatrix = {
+                {"A", "A", "B"},
+                {"A", "+1000", "B"},
+                {"A", "A", "B"}
+        };
+        Map<String, Set<String>> appliedWinningCombinations =gameService.checkWinningCombinations(generatedMatrix);
+
+        assertTrue(appliedWinningCombinations.get("A").contains("same_symbol_5_times"));
+        assertTrue(appliedWinningCombinations.get("A").contains("same_symbols_vertically"));
+        assertTrue(appliedWinningCombinations.get("B").contains("same_symbol_3_times"));
+        assertTrue(appliedWinningCombinations.get("B").contains("same_symbols_vertically"));
+    }
+
+    @Test
+    @DisplayName("Test both same_symbol combination and same_symbols_diagonally_left_to_right")
+    void checkWinningCombinations_CASE2() throws IOException {
+
+        Matrix config = getMatrix("MatrixConfigTest.json");
+        ScratchGameService gameService = new ScratchGameService(config);
+        String[][] generatedMatrix = {
+                {"A", "D", "B"},
+                {"C", "A", "B"},
+                {"C", "F", "A"}
+        };
+        Map<String, Set<String>> appliedWinningCombinations =gameService.checkWinningCombinations(generatedMatrix);
+
+        assertTrue(appliedWinningCombinations.get("A").contains("same_symbols_diagonally_left_to_right"));
+        assertTrue(appliedWinningCombinations.get("A").contains("same_symbol_3_times"));
+    }
+
+    @Test
+    @DisplayName("Test both same_symbol combination and horizontally")
+    void checkWinningCombinations_CASE3() throws IOException {
+
+        Matrix config = getMatrix("MatrixConfigTest.json");
+        ScratchGameService gameService = new ScratchGameService(config);
+        String[][] generatedMatrix = {
+                {"A", "A", "A"},
+                {"C", "E", "B"},
+                {"C", "F", "A"}
+        };
+        Map<String, Set<String>> appliedWinningCombinations =gameService.checkWinningCombinations(generatedMatrix);
+
+        assertTrue(appliedWinningCombinations.get("A").contains("same_symbols_horizontally"));
+        assertTrue(appliedWinningCombinations.get("A").contains("same_symbol_4_times"));
+    }
+
+    @Test
+    @DisplayName("Test both same_symbol combination and same_symbols_diagonally_right_to_left")
+    void checkWinningCombinations_CASE4() throws IOException {
+
+        Matrix config = getMatrix("MatrixConfigTest.json");
+        ScratchGameService gameService = new ScratchGameService(config);
+        String[][] generatedMatrix = {
+                {"B", "D", "A"},
+                {"C", "A", "B"},
+                {"A", "F", "E"}
+        };
+        Map<String, Set<String>> appliedWinningCombinations =gameService.checkWinningCombinations(generatedMatrix);
+
+        assertTrue(appliedWinningCombinations.get("A").contains("same_symbols_diagonally_right_to_left"));
+        assertTrue(appliedWinningCombinations.get("A").contains("same_symbol_3_times"));
+    }
 }

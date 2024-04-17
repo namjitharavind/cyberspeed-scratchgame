@@ -2,8 +2,8 @@ package org.cyberspeed.service;
 
 import org.cyberspeed.model.*;
 
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ScratchGameService {
 
@@ -82,6 +82,65 @@ public class ScratchGameService {
                 break;
             }
         }
+    }
+
+    public Map<String, Set<String>> checkWinningCombinations(String[][] matrix) {
+        Map<String, Set<String>> appliedWinningCombinations = new HashMap<>();
+
+        // Count symbols
+        Map<String, Integer> symbolCount = Arrays.stream(matrix)
+                .flatMap(Arrays::stream) // Flatten the 2D array into a stream of symbols
+                .filter(Objects::nonNull) // Filter out null symbols
+                .collect(Collectors.groupingBy(s -> s, Collectors.summingInt(s -> 1)));
+
+        this.winCombinations.entrySet().forEach(entry -> {
+            String winCombinationName = entry.getKey();
+            WinCombination winCombination = entry.getValue();
+
+            if ("same_symbols".equals(winCombination.getWhen())) {
+                int maxCount = this.winCombinations.get(winCombinationName).getCount();
+
+                symbolCount.entrySet().stream()
+                        .filter(symbolEntry -> symbolEntry.getValue() == maxCount)
+                        .forEach(symbolEntry -> appliedWinningCombinations.compute(symbolEntry.getKey(), (key, oldValue) ->
+                                (oldValue == null || oldValue.size() < maxCount) ?
+                                        new HashSet<>(Collections.singleton(winCombinationName)) :
+                                        oldValue
+                        ));
+            } else if ("linear_symbols".equals(winCombination.getWhen()) && !appliedWinningCombinations.containsKey(winCombinationName)) {
+                List<String> matchingSymbols = findSymbolsInCoveredAreas(matrix, winCombination.getCoveredAreas());
+                matchingSymbols.forEach(symbol -> appliedWinningCombinations
+                        .computeIfAbsent(symbol, k -> new HashSet<>())
+                        .add(winCombinationName));
+            }
+        });
+
+        return appliedWinningCombinations;
+    }
+
+    private List<String> findSymbolsInCoveredAreas(String[][] matrix, List<List<String>> coveredAreas) {
+        List<String> matchingSymbols = new ArrayList<>();
+
+        for (List<String> area : coveredAreas) {
+            String firstSymbol = null;
+            boolean match = true;
+            for (String coord : area) {
+                int row = Integer.parseInt(coord.split(":")[0]);
+                int col = Integer.parseInt(coord.split(":")[1]);
+                String symbol = matrix[row][col];
+                //If there is no matching index on matrix or If
+                if (symbol == null || (firstSymbol != null && !symbol.equals(firstSymbol))) {
+                    match = false;
+                    break;
+                }
+                firstSymbol = symbol;
+            }
+            if (match) {
+                matchingSymbols.add(firstSymbol);
+            }
+        }
+
+        return matchingSymbols;
     }
 
 
