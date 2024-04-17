@@ -48,18 +48,6 @@ class ScratchGameServiceTest {
 
 
     @Test
-    @DisplayName("Test the constructor initialized the fields correctly")
-    public void testConstructor_CASE1() throws IOException {
-        Matrix config = getMatrix("MatrixConfigTest.json");
-        ScratchGameService gameService = new ScratchGameService(config);
-        assertEquals(config.getRows(), gameService.getRows());
-        assertEquals(config.getColumns(), gameService.getColumns());
-        assertEquals(config.getSymbols(), gameService.getSymbols());
-        assertEquals(config.getProbabilities(), gameService.getProbabilities());
-        assertEquals(config.getWinCombinations(), gameService.getWinCombinations());
-    }
-
-    @Test
     @DisplayName("Test the generated Matrix is 3x3 Matrix")
     void generateMatrix_CASE2() throws IOException {
         Matrix config = getMatrix("MatrixConfigTest.json");
@@ -220,4 +208,57 @@ class ScratchGameServiceTest {
         assertTrue(appliedWinningCombinations.get("A").contains("same_symbols_diagonally_right_to_left"));
         assertTrue(appliedWinningCombinations.get("A").contains("same_symbol_3_times"));
     }
+
+    @Test
+    @DisplayName("Test the reward calculation")
+    void calculateReward() throws IOException {
+        Matrix config = getMatrix("MatrixConfigTest.json");
+        ScratchGameService gameService = new ScratchGameService(config);
+        String[][] generatedMatrix = {
+                {"A", "A", "B"},
+                {"A", "+1000", "B"},
+                {"A", "A", "B"}
+        };
+        int bettingAmount=100;
+        String assignedBonus="+1000";
+        Map<String, Set<String>> appliedWinningCombinations =gameService.checkWinningCombinations(generatedMatrix);
+        double reward = gameService.calculateReward(bettingAmount, appliedWinningCombinations, assignedBonus);
+        assertEquals(6600.0,reward);
+    }
+
+    @Test
+    @DisplayName("If one symbols matches more than winning combinations then reward should be multiplied")
+    void calculateReward_CASE2() throws IOException {
+        Matrix config = getMatrix("MatrixConfigTest.json");
+        ScratchGameService gameService = new ScratchGameService(config);
+        String[][] generatedMatrix = {
+                {"A", "A", "B"},
+                {"A", "+1000", "B"},
+                {"A", "A", "B"}
+        };
+        int bettingAmount=100;
+        String assignedBonus="+1000";
+        Map<String, Set<String>> appliedWinningCombinations =gameService.checkWinningCombinations(generatedMatrix);
+        double reward = gameService.calculateReward(bettingAmount, appliedWinningCombinations, assignedBonus);
+        assertEquals(6600.0,reward);
+    }
+
+    @Test
+    @DisplayName("If the more than one symbols matches any winning combinations then reward should be summed")
+    void calculateReward_CASE3() throws IOException {
+        Matrix config = getMatrix("MatrixConfigTest.json");
+        ScratchGameService gameService = new ScratchGameService(config);
+        String[][] generatedMatrix = {
+                {"A", "A", "B"},
+                {"A", "+1000", "B"},
+                {"A", "A", "B"}
+        };
+        int bettingAmount=100;
+        String assignedBonus="+1000";
+        Map<String, Set<String>> appliedWinningCombinations =gameService.checkWinningCombinations(generatedMatrix);
+        double reward = gameService.calculateReward(bettingAmount, appliedWinningCombinations, assignedBonus);
+        assertEquals(6600.0,reward);
+    }
+
+
 }

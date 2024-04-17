@@ -144,23 +144,40 @@ public class ScratchGameService {
     }
 
 
-    public int getRows() {
-        return rows;
-    }
+    public double calculateReward(double betAmount, Map<String, Set<String>> appliedWinningCombinations, String appliedBonusSymbol) {
+        double totalReward = 0.0;
 
-    public int getColumns() {
-        return columns;
-    }
+        for (Map.Entry<String, Set<String>> entry : appliedWinningCombinations.entrySet()) {
+            String symbol = entry.getKey();
+            Set<String> combinations = entry.getValue();
 
-    public Map<String, Symbol> getSymbols() {
-        return symbols;
-    }
+            //Symbol Reward
+            double symbolReward = this.symbols.containsKey(symbol) ? this.symbols.get(symbol).getRewardMultiplier() : 0.0;
+            double symbolTotalReward = symbolReward;
 
-    public ProbabilityConfig getProbabilities() {
-        return probabilities;
-    }
+            // symbol  combination reward sum
+            for (String combination : combinations) {
+                WinCombination winCombination = this.winCombinations.get(combination);
+                if (winCombination != null) {
+                    double combinationReward = winCombination.getRewardMultiplier();
+                    symbolTotalReward *= combinationReward;
+                }
+            }
 
-    public Map<String, WinCombination> getWinCombinations() {
-        return winCombinations;
+            totalReward += symbolTotalReward;
+        }
+        totalReward = totalReward * betAmount;
+        // Apply bonus symbol operation
+        if (appliedBonusSymbol != null) {
+            if (appliedBonusSymbol.contains("x")) {
+                int multiplier = Integer.parseInt(appliedBonusSymbol.replace("x", ""));
+                totalReward *= multiplier;
+            } else if (appliedBonusSymbol.contains("+")) {
+                int bonusAmount = Integer.parseInt(appliedBonusSymbol.replace("+", ""));
+                totalReward += bonusAmount;
+            }
+        }
+
+        return totalReward;
     }
 }

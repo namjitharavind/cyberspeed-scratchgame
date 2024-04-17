@@ -3,11 +3,11 @@
   "rows": 3,
   "symbols": {
     "A": {
-      "reward_multiplier": 50,
+      "reward_multiplier": 5,
       "type": "standard"
     },
     "B": {
-      "reward_multiplier": 25,
+      "reward_multiplier": 3,
       "type": "standard"
     },
     "C": {
@@ -186,7 +186,7 @@
       "group": "same_symbols"
     },
     "same_symbol_5_times": {
-      "reward_multiplier": 2,
+      "reward_multiplier": 5,
       "when": "same_symbols",
       "count": 5,
       "group": "same_symbols"
@@ -228,7 +228,7 @@
         [
           "1:0",
           "1:1",
-          "1:1"
+          "1:2"
         ],
         [
           "2:0",

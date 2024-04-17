@@ -2,13 +2,14 @@ package org.cyberspeed;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.cyberspeed.model.Matrix;
+import org.cyberspeed.model.OutputDto;
 import org.cyberspeed.service.ScratchGameService;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,7 +25,6 @@ public class App {
         String configFileName = args[1];
         int bettingAmount = Integer.parseInt(args[3]);
 
-
         /**
          * Parsing json data with required information to generate a 3x3 Matrix with symbols given
          */
@@ -35,44 +35,30 @@ public class App {
         /**
          * Generate a randomly changing 3x3 Matrix with the given possible symbols and its probabilities
          */
-        ScratchGameService scratchGameService=new ScratchGameService(config);
-        String[][] generatedMatrix=scratchGameService.generateMatrix();
-        printMatrix(generatedMatrix);
+        ScratchGameService scratchGameService = new ScratchGameService(config);
+        String[][] generatedMatrix = scratchGameService.generateMatrix();
         /**
          * Randomly Assign a bonus point on any one of the generated 3x3 Matrix cell
          */
 
         StringBuilder assignedBonus = new StringBuilder();
         scratchGameService.assignBonusSymbol(generatedMatrix, assignedBonus);
-        System.out.println("Bonus applied to one of the cell randomly");
-        System.out.println("====================");
-        printMatrix(generatedMatrix);
-
-        System.out.println("Assigned Bonus: "+assignedBonus);
         /**
-         * TODO: Check the winning combinations applied for the above matrix generated
+         * Check the winning combinations applied for the above matrix generated
          */
 
         Map<String, Set<String>> appliedWinningCombinations = scratchGameService.checkWinningCombinations(generatedMatrix);
-        printMap(appliedWinningCombinations);
 
 
         /**
-         * TODO: calculated the reward
+         *  calculate the reward
          */
 
-    }
+        double reward = scratchGameService.calculateReward(bettingAmount, appliedWinningCombinations, assignedBonus.toString());
+        OutputDto outputDto = new OutputDto(generatedMatrix, reward, appliedWinningCombinations, assignedBonus.toString());
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        String jsonString = objectMapper.writeValueAsString(outputDto);
+        System.out.println(jsonString);
 
-    public static void printMatrix(String[][] matrix) {
-        Arrays.stream(matrix)
-                .map(row -> String.join(" ", row))
-                .forEach(System.out::println);
-    }
-    public static void printMap(Map<String, Set<String>> map) {
-        map.forEach((key, values) -> {
-            System.out.print(key + ": ");
-            values.forEach(value -> System.out.print(value + " "));
-            System.out.println();
-        });
     }
 }
