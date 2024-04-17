@@ -31,15 +31,22 @@ public class App {
         Matrix config = objectMapper.readValue(new File(jsonFilePath), Matrix.class);
 
         /**
-         * TODO: Generate a randomly changing 3x3 Matrix with the given possible symbols
+         * Generate a randomly changing 3x3 Matrix with the given possible symbols and its probabilities
          */
         ScratchGameService scratchGameService=new ScratchGameService(config);
         String[][] generatedMatrix=scratchGameService.generateMatrix();
         printMatrix(generatedMatrix);
         /**
-         * TODO: Randomly Assign a bonus point on any one of the generated 3x3 Matrix cell
+         * Randomly Assign a bonus point on any one of the generated 3x3 Matrix cell
          */
 
+        StringBuilder assignedBonus = new StringBuilder();
+        scratchGameService.assignBonusSymbol(generatedMatrix, assignedBonus);
+        System.out.println("Bonus applied to one of the cell randomly");
+        System.out.println("====================");
+        printMatrix(generatedMatrix);
+
+        System.out.println("Assigned Bonus: "+assignedBonus);
         /**
          * TODO: Check the winning combinations applied for the above matrix generated
          */

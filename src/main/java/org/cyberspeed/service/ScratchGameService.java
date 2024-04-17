@@ -54,6 +54,37 @@ public class ScratchGameService {
     }
 
 
+    /**
+     * Randomly assigns a bonus symbol to a cell in the matrix
+     * And update the assignedBonus  parameter by symbol choosen randomly
+     *
+     * @param matrix
+     * @param assignedBonus
+     */
+    public void assignBonusSymbol(String[][] matrix, StringBuilder assignedBonus) {
+        Random random = new Random();
+        int totalProbability = probabilities.getBonusSymbol().getSymbols().values().stream().mapToInt(Integer::intValue).sum();
+        int randomNumber = random.nextInt(totalProbability) + 1;
+        double cumulativeProbability = 0;
+
+        for (Map.Entry<String, Integer> entry : probabilities.getBonusSymbol().getSymbols().entrySet()) {
+            cumulativeProbability += entry.getValue();
+            if (randomNumber <= cumulativeProbability) {
+                while (true) {
+                    int row = random.nextInt(this.rows);
+                    int column = random.nextInt(this.columns);
+                    if (matrix[row][column] != null) {
+                        matrix[row][column] = entry.getKey();
+                        assignedBonus.append(entry.getKey());
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+
     public int getRows() {
         return rows;
     }
